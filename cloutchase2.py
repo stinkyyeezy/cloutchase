@@ -17,7 +17,7 @@ following_followers_difference = []
 past_5_post_likes = []
 
 
-driver = webdriver.Chrome()
+driver = webdriver.Chrome(r"C:\Users\justi\AppData\Local\Programs\Python\Python38\Lib\site-packages\chromedriver\chromedriver.exe")
 driver.get("https://www.instagram.com/")
 
 # fill in your details here 😎:
@@ -53,22 +53,35 @@ driver.get(user_url)
 time.sleep(2)
 
 follower_count1 = driver.find_element_by_xpath('/html/body/div[1]/section/main/div/header/section/ul/li[2]/a').text
-follower_count2 = follower_count1[:-9]
 
-follower_scroll_number_generator = ((int(follower_count2)-24-12-12)/6)+25
+try:
+	re.search("K", follower_count1)
+	follower_count_intermediate = follower_count1.replace('K', '000')
+	follower_count2 = follower_count_intermediate[:-9]
+	follower_scroll_number_generator = int(following_count2)
 
-time.sleep(2)
+except:
+	try:
+		follower_count_intermediate = follower_count1.replace(',', '')
+	except:
+		follower_count_intermediate = follower_count1
+
+	follower_count2 = follower_count_intermediate[:-9]
+
+	follower_scroll_number_generator = ((int(follower_count2)-24-12-12)/6)+25
+
+time.sleep(3)
           
 driver.find_element_by_xpath('/html/body/div[1]/section/main/div/header/section/ul/li[2]/a').click()          
 
-time.sleep(3)
-fBody  = driver.find_element_by_xpath("//div[@class='isgrP']")
+time.sleep(10)
+fBody  = driver.find_element_by_xpath("/html/body/div[4]/div/div[2]")
 scroll = 0
 while scroll < int(follower_scroll_number_generator): # scroll 5 times
     driver.execute_script('arguments[0].scrollTop = arguments[0].scrollTop + arguments[0].offsetHeight;', fBody)
-    time.sleep(1)
+    time.sleep(2)
     scroll += 1
-
+time.sleep(2)
 link_0 = fBody.find_elements_by_class_name('d7ByH')
 pre_followers = [name.text for name in link_0 if name.text != '']
 celebritytxt = str("\nVerified")
@@ -89,20 +102,33 @@ driver.get(user_url)
 time.sleep(3)
 following_page = str(user_url + '/following/')
 following_count1 = driver.find_element_by_xpath('/html/body/div[1]/section/main/div/header/section/ul/li[3]/a').text
-following_count2 = following_count1[:-10]
-following_scroll_number_generator = ((int(following_count2)-24-12-12)/6)+25
+try:
+	re.search("K", following_count1)
+	following_count_intermediate = following_count1.replace('K', '000')
+	following_count2 = following_count_intermediate[:-9]
+	following_scroll_number_generator = int(following_count2)
+
+except: 
+	try:
+		following_count_intermediate = following_count1.replace(',', '')
+	except:
+		following_count_intermediate = following_count1
+
+	following_count2 = following_count_intermediate[:-10]
+	following_scroll_number_generator = ((int(following_count2)-24-12-12)/6)+25
 time.sleep(5)
 
 
 driver.find_element_by_xpath('/html/body/div[1]/section/main/div/header/section/ul/li[3]/a').click()
-
-fwBody  = driver.find_element_by_xpath("//div[@class='isgrP']")
+time.sleep(5)
+fwBody  = driver.find_element_by_xpath("/html/body/div[4]/div/div[2]")
 scroll = 0
 while scroll < int(following_scroll_number_generator): # scroll 5 times
     driver.execute_script('arguments[0].scrollTop = arguments[0].scrollTop + arguments[0].offsetHeight;', fwBody)
-    time.sleep(1)
+    time.sleep(2)
     scroll += 1
 celebrities = []
+time.sleep(2)
 link_1 = fwBody.find_elements_by_class_name('d7ByH')
 pre_following = [name.text for name in link_1 if name.text != '']
 for pre_followings in pre_following:
@@ -144,8 +170,12 @@ txt = "views"
 time.sleep(1)
 users_that_liked = []
 time.sleep(3)
-driver.find_element_by_xpath('/html/body/div[1]/section/main/div/div[2]/article/div[1]/div/div[1]/div[1]/a/div').click()
-time.sleep(1)
+try:
+	time.sleep(2)
+	driver.find_element_by_xpath('/html/body/div[1]/section/main/div/div[2]/article/div[1]/div/div[1]/div[1]/a/div').click()
+except:
+	driver.find_element_by_xpath('/html/body/div[1]/section/main/div/div[3]/article/div/div/div[1]/div[1]').click()
+time.sleep(3)
 try:
 	phrase = driver.find_element_by_xpath('/html/body/div[4]/div[2]/div/article/div[2]/section[2]/div/span').text
 	re.search("views", phrase)
@@ -158,7 +188,12 @@ try:
 except:
 	time.sleep(2)
 	total_likes_1 = driver.find_element_by_xpath('/html/body/div[4]/div[2]/div/article/div[2]/section[2]/div/div[2]').text
-	total_likes_2 = total_likes_1.split()
+	try:
+		total_likes_intermediate = total_likes_1.replace(',', '')
+	except:
+		total_likes_intermediate = following_count1
+	total_likes_2 = total_likes_intermediate.split()
+
 	like_counter = int(total_likes_2[4]) + 1
 	like_scroll_number_generator = ((like_counter - 24 - 12 -12)/6) + 10
 	post_count += 1
@@ -193,14 +228,18 @@ except:
 #link_users = likeBody.find_elements_by_tag_name('a')
 #pre_users_that_liked = [link_user.text for link_user in link_users if link_user.text != '']	
 
-
+snakes1 = []
 print("loop complete")
 driver.get(user_url)
 print("Calculating Snakes!")
 users_whom_you_follow_but_do_not_follow_back = []
 for following_ in following:
-	if following_ not in followers and celebritystatus:
-		users_whom_you_follow_but_do_not_follow_back.append(following_)
+	if following_ not in followers:
+		snakes1.append(following_)
+for snakes_ in snakes1:
+	if snakes_ not in celebritystatus:
+		users_whom_you_follow_but_do_not_follow_back.append(snakes_)
+
 #print("Snakes:")
 #print(users_whom_you_follow_but_do_not_follow_back)
 print("Number of Snakes:")
@@ -257,4 +296,3 @@ print(final_snake_df)
 print(final_peep_df)
 print("Data Saved to CSV files!!!")
 print("Process Complete")
-print("Addison Rae PLEASE DM ME @stinkyyeezy xx")
